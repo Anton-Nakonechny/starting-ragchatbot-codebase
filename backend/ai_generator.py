@@ -82,9 +82,22 @@ Provide only the direct answer to what was asked.
         # Handle tool execution if needed
         if response.stop_reason == "tool_use" and tool_manager:
             return self._handle_tool_execution(response, api_params, tool_manager)
-        
+
         # Return direct response
-        return response.content[0].text
+        return self._extract_text(response)
+
+    @staticmethod
+    def _extract_text(response) -> str:
+        """Safely extract text from a Claude response.
+
+        The model can return an empty content list (e.g. an end_turn with no
+        text) or lead with a non-text block. Guard against both rather than
+        assuming content[0] is always a text block.
+        """
+        for block in response.content:
+            if getattr(block, "type", None) == "text":
+                return block.text
+        return ""
     
     def _handle_tool_execution(self, initial_response, base_params: Dict[str, Any], tool_manager):
         """
@@ -132,4 +145,4 @@ Provide only the direct answer to what was asked.
         
         # Get final response
         final_response = self.client.messages.create(**final_params)
-        return final_response.content[0].text
+        return self._extract_text(final_response)
