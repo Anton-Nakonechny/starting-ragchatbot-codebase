@@ -248,6 +248,8 @@ header h1 {
 
 .source-chip {
     display: block;
+    width: fit-content;
+    max-width: 100%;
     background: #162040;
     border: 1px solid #2d4fd6;
     border-radius: 8px;
@@ -256,6 +258,11 @@ header h1 {
     color: #7b96f5;
     margin-bottom: 6px;
     line-height: 1.4;
+    transition: border-color 0.2s ease;
+}
+
+.source-chip:hover {
+    border-color: var(--primary-color);
 }
 
 .source-chip:last-child {
