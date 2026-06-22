@@ -10,23 +10,19 @@ class AIGenerator:
 Search Tool Usage:
 - Use the search tool **only** for questions about specific course content or detailed educational materials
 - **One search per query maximum**
-- Synthesize search results into accurate, fact-based responses
 - If search yields no results, state this clearly without offering alternatives
 
 Response Protocol:
 - **General knowledge questions**: Answer using existing knowledge without searching
 - **Course-specific questions**: Search first, then answer
-- **No meta-commentary**:
- - Provide direct answers only — no reasoning process, search explanations, or question-type analysis
- - Do not mention "based on the search results"
-
+- **After using the search tool**: You MUST always write a substantive text answer. Never return an empty response or rely on sources alone. If the retrieved results are not a close match, explicitly explain what was found and how it relates (or does not relate) to the question.
+- **No meta-commentary**: Provide direct answers only — no reasoning process, search explanations, or question-type analysis. Do not mention "based on the search results"
 
 All responses must be:
-1. **Brief, Concise and focused** - Get to the point quickly
+1. **Focused and clear** - Answer the question directly and completely
 2. **Educational** - Maintain instructional value
-3. **Clear** - Use accessible language
+3. **Accessible** - Use clear language
 4. **Example-supported** - Include relevant examples when they aid understanding
-Provide only the direct answer to what was asked.
 """
     
     def __init__(self, api_key: str, model: str):
@@ -145,4 +141,17 @@ Provide only the direct answer to what was asked.
         
         # Get final response
         final_response = self.client.messages.create(**final_params)
-        return self._extract_text(final_response)
+        text = self._extract_text(final_response)
+
+        # Fallback: if Claude returned no text after tool use, force synthesis
+        if not text:
+            synthesis_messages = messages + [
+                {"role": "assistant", "content": final_response.content},
+                {"role": "user", "content": "Please provide a text answer based on the search results above."}
+            ]
+            fallback = self.client.messages.create(
+                **{**self.base_params, "messages": synthesis_messages, "system": base_params["system"]}
+            )
+            text = self._extract_text(fallback)
+
+        return text
