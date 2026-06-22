@@ -131,12 +131,15 @@ function addMessage(content, type, sources = null, isWelcome = false) {
                 <summary class="sources-header">Sources</summary>
                 <div class="sources-content">${sources.map(s => {
                     const sep = s.label.indexOf(' - ');
-                    const prefix = sep >= 0 ? s.label.slice(0, sep + 3) : '';
-                    const linked = sep >= 0 ? s.label.slice(sep + 3) : s.label;
-                    return s.url
-                        ? `${prefix}<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="source-chip">${linked}</a>`
-                        : s.label;
-                }).join('<br>')}</div>
+                    const course = sep >= 0 ? s.label.slice(0, sep) : s.label;
+                    const linked = sep >= 0 ? s.label.slice(sep + 3) : '';
+                    const chip = linked
+                        ? (s.url
+                            ? `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="source-chip">${linked}</a>`
+                            : `<span class="source-chip">${linked}</span>`)
+                        : '';
+                    return `<div class="source-row"><span class="source-course">${course} ${linked ? '-' : ''}</span>${chip}</div>`;
+                }).join('')}</div>
             </details>
         `;
     }

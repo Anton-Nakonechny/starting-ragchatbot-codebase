@@ -241,41 +241,39 @@ header h1 {
 }
 
 .sources-content {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    column-gap: 0.5rem;
+    row-gap: 8px;
+    align-items: center;
+    justify-content: start;
     padding: 0.25rem 0.5rem;
     color: var(--text-secondary);
-    line-height: 1.8;
+}
+
+/* wrapper collapses so its span + chip become direct grid items */
+.source-row {
+    display: contents;
+}
+
+.source-course {
+    color: var(--text-secondary);
 }
 
 .source-chip {
-    display: block;
-    width: fit-content;
-    max-width: 100%;
+    text-align: center;
     background: #162040;
     border: 1px solid #2d4fd6;
     border-radius: 8px;
     padding: 8px 14px;
     font-weight: 600;
     color: #7b96f5;
-    margin-bottom: 6px;
     line-height: 1.4;
     transition: border-color 0.2s ease;
 }
 
 .source-chip:hover {
     border-color: var(--primary-color);
-}
-
-.source-chip:last-child {
-    margin-bottom: 0;
-}
-
-.source-chip a {
-    color: #7b96f5;
-    text-decoration: none;
-}
-
-.source-chip a:hover {
-    text-decoration: underline;
 }
 
 /* Markdown formatting styles */
