@@ -138,7 +138,11 @@ function addMessage(content, type, sources = null, isWelcome = false) {
                             ? `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="source-chip">${linked}</a>`
                             : `<span class="source-chip">${linked}</span>`)
                         : '';
-                    return `<div class="source-row"><span class="source-course">${course} ${linked ? '-' : ''}</span>${chip}</div>`;
+                    // Course-only source (e.g. course outline): make the title itself the link.
+                    const courseHtml = (!linked && s.url)
+                        ? `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="source-course-link">${course}</a>`
+                        : course;
+                    return `<div class="source-row"><span class="source-course">${courseHtml} ${linked ? '-' : ''}</span>${chip}</div>`;
                 }).join('')}</div>
             </details>
         `;

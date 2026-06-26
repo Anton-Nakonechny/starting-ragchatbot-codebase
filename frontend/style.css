@@ -260,7 +260,12 @@ header h1 {
     color: var(--text-secondary);
 }
 
-.source-chip {
+/* Shared "link chip" look: lesson chips, the Sources course link, and inline
+   links inside answer bodies all render as the same bordered pill. */
+.source-chip,
+.source-course-link,
+.message-content a {
+    display: inline-block;
     text-align: center;
     background: #162040;
     border: 1px solid #2d4fd6;
@@ -269,10 +274,13 @@ header h1 {
     font-weight: 600;
     color: #7b96f5;
     line-height: 1.4;
+    text-decoration: none;
     transition: border-color 0.2s ease;
 }
 
-.source-chip:hover {
+.source-chip:hover,
+.source-course-link:hover,
+.message-content a:hover {
     border-color: var(--primary-color);
 }
 
@@ -294,6 +302,26 @@ header h1 {
 .message-content p {
     margin: 0.5rem 0;
     line-height: 1.6;
+}
+
+/* Markdown tables (e.g. course outlines): compact, padded columns instead of
+   the browser's default auto-layout, which produced uneven gaps. */
+.message-content table {
+    border-collapse: collapse;
+    margin: 0.5rem 0;
+    width: auto;
+}
+
+.message-content th,
+.message-content td {
+    text-align: left;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.message-content th {
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .message-content ul,
