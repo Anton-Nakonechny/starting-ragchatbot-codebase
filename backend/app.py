@@ -1,6 +1,7 @@
 import warnings
 warnings.filterwarnings("ignore", message="resource_tracker: There appear to be.*")
 
+import logging
 from pathlib import Path
 from typing import List, Optional
 
@@ -13,6 +14,9 @@ from pydantic import BaseModel
 
 from config import config
 from rag_system import RAGSystem
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 # Pydantic models for request/response
@@ -109,6 +113,7 @@ def create_app(
                 session_id=session_id,
             )
         except Exception as e:
+            logger.exception("Query failed for request: %r", request.query)
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/courses", response_model=CourseStats)
@@ -121,6 +126,7 @@ def create_app(
                 course_titles=analytics["course_titles"],
             )
         except Exception as e:
+            logger.exception("Failed to get course stats")
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.delete("/api/session/{session_id}")
@@ -130,6 +136,7 @@ def create_app(
             rag_system.session_manager.clear_session(session_id)
             return {"status": "ok"}
         except Exception as e:
+            logger.exception("Failed to clear session %s", session_id)
             raise HTTPException(status_code=500, detail=str(e))
 
     if load_docs_on_startup:

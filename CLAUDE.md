@@ -58,6 +58,26 @@ cd backend && uv run uvicorn app:app --reload --port 8000
 
 Access app at `http://localhost:8000` and API docs at `http://localhost:8000/docs`.
 
+The server port is defined **once** in `.env` (`PORT=8000`) and consumed by
+both `backend/config.py` (via python-dotenv → `config.PORT`) and `run.sh` (which sources
+the same file).
+
+### Manual / End-to-End Testing
+
+Before launching the app for a manual test, **check whether the port is already
+listening first** — do not blindly run `./run.sh`, which would fail or spawn a
+duplicate if a server is already up. Only start the server if the port is free.
+
+```bash
+# PORT comes from .env (the single source of truth)
+set -a; source .env; set +a
+if lsof -i :"$PORT" >/dev/null 2>&1; then
+  echo "Server already running on :$PORT — reuse it."
+else
+  ./run.sh
+fi
+```
+
 ### Pre-commit Hooks
 
 This project uses `detect-secrets` + Black + Ruff via `.pre-commit-config.yaml`:
