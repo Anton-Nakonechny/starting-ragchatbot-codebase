@@ -246,6 +246,26 @@ class VectorStore:
             print(f"Error getting course link: {e}")
             return None
     
+    def get_single_course_metadata(self, course_title: str) -> Optional[Dict[str, Any]]:
+        """Keyed fetch of one course's metadata (lessons parsed), or None.
+
+        Avoids the full-catalog scan of ``get_all_courses_metadata`` when only a
+        single course is needed; mirrors the keyed lookup used by the link getters.
+        """
+        import json
+        try:
+            results = self.course_catalog.get(ids=[course_title])
+            if results and results.get('metadatas'):
+                metadata = results['metadatas'][0].copy()
+                if 'lessons_json' in metadata:
+                    metadata['lessons'] = json.loads(metadata['lessons_json'])
+                    del metadata['lessons_json']
+                return metadata
+            return None
+        except Exception as e:
+            print(f"Error getting course metadata: {e}")
+            return None
+
     def get_lesson_link(self, course_title: str, lesson_number: int) -> Optional[str]:
         """Get lesson link for a given course title and lesson number"""
         import json
