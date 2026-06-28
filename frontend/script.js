@@ -5,9 +5,39 @@ const API_URL = '/api';
 let currentSessionId = null;
 
 // DOM elements
-let chatMessages, chatInput, sendButton, totalCourses, courseTitles;
+let chatMessages, chatInput, sendButton, totalCourses, courseTitles, themeToggle;
 
+// ---------------------------------------------------------------------------
+// Theme toggle
+// ---------------------------------------------------------------------------
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    if (themeToggle) {
+        themeToggle.setAttribute(
+            'aria-label',
+            theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'
+        );
+    }
+}
+
+function initTheme() {
+    const saved = localStorage.getItem('theme');
+    const preferred = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    applyTheme(saved || preferred);
+}
+
+function toggleTheme() {
+    const current = localStorage.getItem('theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('theme', next);
+}
+
+// ---------------------------------------------------------------------------
 // Initialize
+// ---------------------------------------------------------------------------
+
 document.addEventListener('DOMContentLoaded', () => {
     // Get DOM elements after page loads
     chatMessages = document.getElementById('chatMessages');
@@ -15,7 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
     sendButton = document.getElementById('sendButton');
     totalCourses = document.getElementById('totalCourses');
     courseTitles = document.getElementById('courseTitles');
-    
+    themeToggle = document.getElementById('themeToggle');
+
+    initTheme();
     setupEventListeners();
     createNewSession();
     loadCourseStats();
@@ -33,6 +65,8 @@ function setupEventListeners() {
     const newChatButton = document.getElementById('newChatButton');
     if (newChatButton) newChatButton.addEventListener('click', createNewSession);
 
+    // Theme toggle
+    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
 
     // Suggested questions
     document.querySelectorAll('.suggested-item').forEach(button => {

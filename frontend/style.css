@@ -3,6 +3,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* CSS Variables */
@@ -22,6 +23,30 @@
     --focus-ring: rgba(37, 99, 235, 0.2);
     --welcome-bg: #1e3a5f;
     --welcome-border: #2563eb;
+    --toggle-bg: #334155;
+    --toggle-color: #94a3b8;
+    --toggle-hover-bg: #475569;
+}
+
+/* Light theme overrides */
+[data-theme="light"] {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --surface-hover: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --user-message: #2563eb;
+    --assistant-message: #f1f5f9;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    --focus-ring: rgba(37, 99, 235, 0.15);
+    --welcome-bg: #eff6ff;
+    --welcome-border: #93c5fd;
+    --toggle-bg: #e2e8f0;
+    --toggle-color: #64748b;
+    --toggle-hover-bg: #cbd5e1;
 }
 
 /* Base Styles */
@@ -797,3 +822,46 @@ details[open] .suggested-header::before {
         width: 280px;
     }
 }
+
+/* Theme Toggle Button */
+#themeToggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: var(--toggle-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--toggle-color);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+#themeToggle:hover {
+    background: var(--toggle-hover-bg);
+    color: var(--text-primary);
+    transform: scale(1.08);
+}
+
+#themeToggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+#themeToggle:active {
+    transform: scale(0.95);
+}
+
+/* Icon visibility: in dark mode (default) show sun, hide moon;
+   in light mode show moon, hide sun */
+#themeToggle .icon-sun  { display: block; }
+#themeToggle .icon-moon { display: none;  }
+
+[data-theme="light"] #themeToggle .icon-sun  { display: none;  }
+[data-theme="light"] #themeToggle .icon-moon { display: block; }
