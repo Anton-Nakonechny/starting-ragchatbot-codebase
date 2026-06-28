@@ -1,12 +1,13 @@
 """Black-box end-to-end tests of the HTTP contract via TestClient.
 
 The whole stack is real except the Anthropic client (faked). These tests
-pin the user-facing API: query flow, sources shape, sessions, and errors.
+pin the user-facing API: query flow, sources shape, sessions, errors, and
+input validation.
 """
 
-from fastapi.testclient import TestClient
+import pytest
 
-from tests.conftest import build_app, text_response, tool_use_response
+from tests.conftest import text_response, tool_use_response
 
 
 def test_query_creates_session_when_missing(client, fake_anthropic):
@@ -90,9 +91,8 @@ def test_courses_endpoint_reports_seeded_catalog(client):
     assert "Test Course on Widgets" in body["course_titles"]
 
 
-def test_courses_endpoint_empty_store(unseeded_rag_system):
-    with TestClient(build_app(unseeded_rag_system)) as c:
-        resp = c.get("/api/courses")
+def test_courses_endpoint_empty_store(unseeded_client):
+    resp = unseeded_client.get("/api/courses")
 
     assert resp.status_code == 200
     body = resp.json()
@@ -111,3 +111,48 @@ def test_clear_session(client, fake_anthropic, seeded_rag_system):
     assert resp.status_code == 200
     assert resp.json() == {"status": "ok"}
     assert sessions.get_conversation_history(session_id) is None
+
+
+# ---------------------------------------------------------------------------
+# Input validation
+# ---------------------------------------------------------------------------
+
+@pytest.mark.api
+@pytest.mark.parametrize("query", ["", "   "])
+def test_query_rejects_blank_query(unseeded_client, query):
+    """Empty or whitespace-only query must be rejected with 422 Unprocessable Entity."""
+    resp = unseeded_client.post("/api/query", json={"query": query})
+
+    assert resp.status_code == 422
+
+
+@pytest.mark.api
+def test_query_missing_required_field_returns_422(unseeded_client):
+    """Missing `query` field must be rejected with 422 Unprocessable Entity."""
+    resp = unseeded_client.post("/api/query", json={})
+
+    assert resp.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Session lifecycle edge cases
+# ---------------------------------------------------------------------------
+
+@pytest.mark.api
+def test_clear_nonexistent_session_is_idempotent(unseeded_client):
+    """Deleting a session that was never created must succeed gracefully."""
+    resp = unseeded_client.delete("/api/session/session_that_never_existed")
+
+    assert resp.status_code == 200
+    assert resp.json() == {"status": "ok"}
+
+
+@pytest.mark.api
+def test_query_with_provided_session_id_uses_it(client, fake_anthropic):
+    """Supplying an arbitrary session_id on first call must echo it back."""
+    fake_anthropic.responses = [text_response("reusing session")]
+
+    resp = client.post("/api/query", json={"query": "hello", "session_id": "my-custom-session"})
+
+    assert resp.status_code == 200
+    assert resp.json()["session_id"] == "my-custom-session"

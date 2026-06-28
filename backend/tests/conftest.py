@@ -193,3 +193,14 @@ def client(seeded_rag_system):
     """TestClient over the real app, no frontend mount, no startup doc load."""
     with TestClient(build_app(seeded_rag_system)) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def unseeded_client(unseeded_rag_system):
+    """TestClient over the real app with an empty vector store.
+
+    Use this instead of building ``TestClient(build_app(...))`` inline whenever
+    a test needs the API without any pre-loaded courses.
+    """
+    with TestClient(build_app(unseeded_rag_system)) as test_client:
+        yield test_client
