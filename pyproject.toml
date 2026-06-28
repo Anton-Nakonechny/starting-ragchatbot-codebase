@@ -16,9 +16,21 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "black>=23.12.0",
     "httpx>=0.28.1",
     "pytest>=9.1.1",
+    "ruff>=0.1.11",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+# Only extend-exclude beyond black's built-in defaults (.git, .venv, etc.)
+extend-exclude = 'chroma_db'
+
+[tool.ruff.lint]
+# target-version is inferred from [project].requires-python; line-length defaults to 88
+select = ["E", "F", "I"]
 
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
